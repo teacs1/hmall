@@ -1,8 +1,8 @@
 spring:
   application:
-    name: cart-service
+    name: trade-service
   profiles:
-    active: dev
+    active: local
   cloud:
     nacos:
       server-addr: http://117.72.115.224:8848

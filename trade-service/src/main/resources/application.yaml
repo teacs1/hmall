@@ -1,54 +1,11 @@
 server:
   port: 8085
-spring:
-  application:
-    name: trade-service
-  profiles:
-    active: dev
-  datasource:
-    url: jdbc:mysql://${hm.db.host}:3307/hm-trade?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: ${hm.db.pw}
-    hikari:
-      minimum-idle: 1           # 启动时少预热一些连接
-      maximum-pool-size: 10     # 限制每个服务最大连接数
-      idle-timeout: 30000       # 30 秒不使用就回收
-      max-lifetime: 60000       # 最多活 1 分钟，避免一直占用
-      connection-timeout: 10000 # 获取连接最多等 10 秒
-      pool-name: HikariPool
-  cloud:
-    nacos:
-      server-addr: http://117.72.115.224:8848
 feign:
   okhttp:
     enabled: true # 开启OKHttp功能
-mybatis-plus:
-  configuration:
-    default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
-  global-config:
-    db-config:
-      update-strategy: not_null
-      id-type: auto
-logging:
-  level:
-    com.hmall: debug
-  pattern:
-    dateformat: HH:mm:ss:SSS
-  file:
-    path: "logs/${spring.application.name}"
-knife4j:
-  enable: true
-  openapi:
-    title: 交易服务接口文档
-    description: "交易服务接口文档"
-    email: zhanghuyi@itcast.cn
-    concat: 虎哥
-    url: https://www.itcast.cn
-    version: v1.0.0
-    group:
-      default:
-        group-name: default
-        api-rule: package
-        api-rule-resources:
-          - com.hmall.trade.controller
+hm:
+  db:
+    database: hm-trade
+  swagger:
+    title: "黑马商城交易服务接口文档"
+    package: com.hmall.trade.controller
