@@ -1,0 +1,8 @@
+E:\project\idea\hmall\hm-gateway\src\main\java\com\hmall\gateway\config\AuthProperties.java
+E:\project\idea\hmall\hm-gateway\src\main\java\com\hmall\gateway\filters\MyGlobalFilter.java
+E:\project\idea\hmall\hm-gateway\src\main\java\com\hmall\gateway\GatewayApplication.java
+E:\project\idea\hmall\hm-gateway\src\main\java\com\hmall\gateway\config\JwtProperties.java
+E:\project\idea\hmall\hm-gateway\src\main\java\com\hmall\gateway\config\SecurityConfig.java
+E:\project\idea\hmall\hm-gateway\src\main\java\com\hmall\gateway\filters\AuthGlobalFilter.java
+E:\project\idea\hmall\hm-gateway\src\main\java\com\hmall\gateway\route\DynamicRouteLoader.java
+E:\project\idea\hmall\hm-gateway\src\main\java\com\hmall\gateway\utils\JwtTool.java
