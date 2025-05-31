@@ -5,7 +5,7 @@ hm:
     location: classpath:hmall.jks
     alias: hmall
     password: hmall123
-    tokenTTL: 30m
+    tokenTTL: 60m
   auth:
     excludePaths:
       - /search/**
