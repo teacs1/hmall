@@ -1,4 +1,4 @@
-package com.hmall.common.utils;
+package com.hmall.common.redis.constant;
 
 import lombok.Getter;
 
