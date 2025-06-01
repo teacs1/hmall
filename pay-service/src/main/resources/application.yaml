@@ -5,14 +5,7 @@ feign:
     enabled: true # 开启OKHttp功能
 hm:
   db:
-    database: pay-service
+    database: hm-pay
   swagger:
     title: "黑马商城支付接口文档"
     package: com.hmall.pay.controller
-spring:
-  rabbitmq:
-    host: 115.190.39.160
-    port: 5672
-    virtual-host: /hmall
-    username: hmall
-    password: 123
