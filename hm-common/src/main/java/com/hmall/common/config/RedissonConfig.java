@@ -1,34 +1,42 @@
 package com.hmall.common.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hmall.common.redis.util.RedisKeyUtil;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
-
 @Configuration
+@EnableConfigurationProperties(RedisProperties.class)
 public class RedissonConfig {
 
-    @Value("${spring.redis.password}")
-    private String redisPassword;
+    private final RedisProperties redisProperties;
 
-    @Value("${spring.redis.cluster.nodes}")
-    private List<String> clusterNodes;
-
+    public RedissonConfig(RedisProperties redisProperties) {
+        this.redisProperties = redisProperties;
+    }
     @Bean(destroyMethod = "shutdown")
-    public RedissonClient redissonClient() {
+    public RedissonClient redissonClient(RedisProperties properties) {
+        if (redisProperties.getCluster() == null || redisProperties.getCluster().getNodes() == null) {
+            throw new IllegalArgumentException("Redis 配置未加载，请检查 spring.redis.cluster.nodes");
+        }
         Config config = new Config();
-        String[] nodes = clusterNodes.stream()
+        String[] nodes = properties.getCluster().getNodes().stream()
                 .map(ip -> "redis://" + ip)
                 .toArray(String[]::new);
 
         config.useClusterServers()
                 .addNodeAddress(nodes)
-                .setPassword(redisPassword);
+                .setPassword(properties.getPassword());
 
         return Redisson.create(config);
+    }
+
+    @Bean
+    public RedisKeyUtil redisKeyUtil(RedissonClient client, ObjectMapper mapper) {
+        return new RedisKeyUtil(client, mapper);
     }
 }

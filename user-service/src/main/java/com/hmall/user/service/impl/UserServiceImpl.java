@@ -1,12 +1,16 @@
 package com.hmall.user.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmall.common.exception.BadRequestException;
 import com.hmall.common.exception.BizIllegalException;
 import com.hmall.common.exception.ForbiddenException;
+import com.hmall.common.redis.constant.RedisKeyEnum;
+import com.hmall.common.redis.util.RedisKeyUtil;
 import com.hmall.common.utils.UserContext;
 import com.hmall.user.config.JwtProperties;
 import com.hmall.user.domain.dto.LoginFormDTO;
+import com.hmall.user.domain.dto.UserDTO;
 import com.hmall.user.domain.po.User;
 import com.hmall.user.domain.vo.UserLoginVO;
 import com.hmall.user.enums.UserStatus;
@@ -37,6 +41,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     private final JwtProperties jwtProperties;
 
+    private final RedisKeyUtil redisKeyUtil;
+
     @Override
     public UserLoginVO login(LoginFormDTO loginDTO) {
         // 1.数据校验
@@ -61,6 +67,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         vo.setUsername(user.getUsername());
         vo.setBalance(user.getBalance());
         vo.setToken(token);
+        // 7.存入redis
+        UserDTO userDTO = BeanUtil.copyProperties(vo, UserDTO.class);
+        userDTO.setToken(token);
+        redisKeyUtil.set(RedisKeyEnum.USER_INFO, userDTO, vo.getUserId());
+        UserDTO dto = redisKeyUtil.get(RedisKeyEnum.USER_INFO, UserDTO.class, vo.getUserId());
+        System.out.println(dto.toString());
         return vo;
     }
 
