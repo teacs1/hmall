@@ -3,7 +3,6 @@ package com.hmall.pay.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.hmall.api.client.TradeClient;
 import com.hmall.api.client.UserClient;
 import com.hmall.common.exception.BizIllegalException;
 import com.hmall.common.utils.BeanUtils;
@@ -15,6 +14,9 @@ import com.hmall.pay.enums.PayStatus;
 import com.hmall.pay.mapper.PayOrderMapper;
 import com.hmall.pay.service.IPayOrderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,11 +30,14 @@ import java.time.LocalDateTime;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> implements IPayOrderService {
 
     private final UserClient userClient;
 
-    private final TradeClient tradeClient;
+//    private final TradeClient tradeClient;
+
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public String applyPayOrder(PayApplyDTO applyDTO) {
@@ -50,6 +55,7 @@ public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> i
         // 2.判断状态
         if(!PayStatus.WAIT_BUYER_PAY.equalsValue(po.getStatus())){
             // 订单不是未支付，状态异常
+            log.error("订单状态:{}", po.getStatus());
             throw new BizIllegalException("交易已支付或关闭！");
         }
         // 3.尝试扣减余额
@@ -60,7 +66,13 @@ public class PayOrderServiceImpl extends ServiceImpl<PayOrderMapper, PayOrder> i
             throw new BizIllegalException("交易已支付或关闭！");
         }
         // todo 5.修改订单状态
-        tradeClient.markOrderPaySuccess(po.getBizOrderNo());
+        // tradeClient.markOrderPaySuccess(po.getBizOrderNo());/*不再需要远程调用*/
+        try {
+            rabbitTemplate.convertAndSend("pay.direct", "pay.success", po.getBizOrderNo());
+        } catch (AmqpException e) {
+            log.error("发送支付状态通知失败,订单ID: {}", po.getBizOrderNo(), e);
+        }
+
     }
 
     public boolean markPayOrderSuccess(Long id, LocalDateTime successTime) {
